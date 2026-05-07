@@ -197,27 +197,32 @@ window.handleRegistration = async function() {
 }
 
     window.memberLogin = async function() {
-        const phone = document.getElementById('loginPhone').value;
-        const snap = await getDocs(query(collection(db, "members"), where("phone", "==", phone)));
-        if(!snap.empty) {
-            const d = snap.docs[0].data();
-            document.getElementById('loginArea').style.display = 'none';
-            document.getElementById('memberContent').style.display = 'block';
-            document.getElementById('id-card-display').style.display = 'block';
-            document.getElementById('cardName').innerText = d.name;
-            document.getElementById('cardImg').src = d.photo_url;
-            document.getElementById('cardID').innerText = "M-"+phone.slice(-4);
-            document.getElementById('cardBloodDisp').innerText = d.blood_group;
-            
-            const hSnap = await getDocs(query(collection(db, "history"), where("member_phone", "==", phone), orderBy("date", "desc")));
-            const hList = document.getElementById('memberHistoryList');
-            hList.innerHTML = "";
-            hSnap.forEach(hd => {
-                const h = hd.data();
-                hList.innerHTML += `<tr><td>${h.date.toDate().toLocaleDateString('bn-BD')}</td><td>${h.desc}</td><td>${h.status}</td></tr>`;
-            });
-        } else { alert("মেম্বার পাওয়া যায়নি!"); }
+    const phone = document.getElementById('loginPhone').value;
+    const snap = await getDocs(query(collection(db, "members"), where("phone", "==", phone)));
+    
+    if(!snap.empty) {
+        const d = snap.docs[0].data();
+        
+        // অ্যাডমিনের পারমিশন চেক
+        if(d.status !== "Active") {
+            alert("আপনার আবেদনটি এখন 'Pending' আছে। অ্যাডমিন অ্যাপ্রুভ করলে আপনি আপনার আইডি কার্ড দেখতে পাবেন।");
+            return; // এখানেই কোড থেমে যাবে, ড্যাশবোর্ড খুলবে না
+        }
+
+        // পারমিশন থাকলে তবেই নিচের আইডি কার্ড দেখাবে
+        document.getElementById('loginArea').style.display = 'none';
+        document.getElementById('memberContent').style.display = 'block';
+        document.getElementById('id-card-display').style.display = 'block';
+        document.getElementById('cardName').innerText = d.name;
+        document.getElementById('cardImg').src = d.photo_url;
+        document.getElementById('cardID').innerText = "M-" + phone.slice(-4);
+        document.getElementById('cardBloodDisp').innerText = d.blood_group;
+        
+        // হিস্ট্রি লোড করার কোড...
+    } else { 
+        alert("মেম্বার পাওয়া যায়নি!"); 
     }
+}
 
     window.loadAdminPanel = async function() {
         if(prompt("Admin Password?") !== "aikotan2026") return;

@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aikotan Social Welfare Society</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
     <style>
         :root { --primary: #1a5f7a; --secondary: #159895; --accent: #57c5b6; --light: #f0f9f9; --white: #ffffff; }
         * { box-sizing: border-box; scroll-behavior: smooth; }
@@ -98,19 +100,30 @@
             <button class="btn" onclick="memberLogin()">লগইন</button>
         </div>
         <div id="memberContent" style="display: none;">
-            <div id="id-card-display">
-                <div style="background:var(--primary); color:white; padding:10px;">ID CARD</div>
-                <div class="id-photo"><img id="cardImg" src=""></div>
-                <h3 id="cardName"></h3>
-                <p>ID: <span id="cardID"></span></p>
-                <p>Blood: <span id="cardBloodDisp"></span></p>
+                    <div id="id-card-display" style="width: 320px; background: white; border: 2px solid var(--primary); border-radius: 15px; margin: 20px auto; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.1); overflow: hidden;">
+            <div style="background:var(--primary); color:white; padding:12px; font-weight:bold; letter-spacing: 1px;">AIKOTAN SOCIETY - ID CARD</div>
+            <div style="padding: 20px;">
+                <div class="id-photo" style="width: 140px; height: 140px; border: 3px solid var(--secondary); margin: 0 auto 15px; border-radius: 10px; overflow: hidden;">
+                    <img id="cardImg" src="" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <h3 id="cardName" style="margin: 10px 0; font-size: 20px; color: #333;"></h3>
+                <p style="margin: 5px 0; color: #555;">Member ID: <span id="cardID" style="font-weight: bold;"></span></p>
+                <p style="margin: 5px 0; color: #555;">Blood Group: <span id="cardBloodDisp" style="font-weight: bold;"></span></p>
+                <p style="margin: 5px 0; color: #555;">Status: <span style="color: green; font-weight: bold;">Active Member</span></p>
+                <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
+                <p style="font-size: 11px; color: #777; line-height: 1.4;"><span id="cardAddressDisp"></span></p>
+                <div style="margin-top:15px; display:flex; justify-content:flex-end;">
+                    <div style="text-align:center;">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Jon_Kirsch%27s_Signature.png" alt="Signature" style="width:60px; height:auto;">
+                        <p style="border-top:1px solid #333; font-size:9px; margin-top:2px;">President's Signature</p>
+                    </div>
+                </div>
             </div>
-            <h3>পেমেন্ট ও অ্যাক্টিভিটি হিস্ট্রি</h3>
-            <table class="member-table">
-                <thead><tr><th>তারিখ</th><th>বিবরণ</th><th>অবস্থা</th></tr></thead>
-                <tbody id="memberHistoryList"></tbody>
-            </table>
-            <button class="btn" onclick="location.reload()">লগ আউট</button>
+        </div>
+        <button class="btn" id="downloadBtn" style="background: #159895;"><i class="fas fa-download"></i> কার্ড ডাউনলোড করুন</button>
+        <button class="btn" onclick="location.reload()" style="background: #666;">লগ আউট</button>
+
+
         </div>
     </div>
 
@@ -124,7 +137,14 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc, deleteDoc, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    const firebaseConfig = { apiKey: "AIzaSyDEXXHMhEXY3fih9jihO6", authDomain: "club-a2677.firebaseapp.com", projectId: "club-a2677", storageBucket: "club-a2677.appspot.com", messagingSenderId: "444470240648", appId: "1:444470240648:web:c8b81823" };
+        const firebaseConfig = {
+      apiKey: "AIzaSyDEXXHMhEXY3fih9jihO6X_b-a2677", 
+      authDomain: "club-a2677.firebaseapp.com",
+      projectId: "club-a2677",
+      storageBucket: "club-a2677.firebasestorage.app",
+      messagingSenderId: "444470240648",
+      appId: "1:444470240648:web:c8b81823126f58f44d80a1"
+    };
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
@@ -154,7 +174,6 @@ window.handleRegistration = async function() {
 
     if(!name || !phone || !file) return alert("দয়া করে সব তথ্য পূরণ করুন।");
 
-    // বাটনটি ডিজেবল করা যাতে মেম্বার বারবার ক্লিক না করে
     regBtn.disabled = true;
     regBtn.innerText = "অপেক্ষা করুন...";
 
@@ -162,7 +181,7 @@ window.handleRegistration = async function() {
     reader.readAsDataURL(file);
     reader.onload = async (e) => {
         try {
-            // Firestore-এ মেম্বার ডাটা সেভ
+            // মেম্বার ডাটা সরাসরি Firestore-এ সেভ হচ্ছে (Storage ছাড়া)
             await addDoc(collection(db, "members"), {
                 name: name,
                 address: address,
@@ -181,15 +200,12 @@ window.handleRegistration = async function() {
                 status: "Pending" 
             });
 
-            // সফল মেসেজ দেখানো
-            alert("ধন্যবাদ " + name + "! আপনার আবেদনটি সফলভাবে ঐকতান সোসাইটির ডাটাবেসে জমা হয়েছে। অ্যাডমিন অ্যাপ্রুভ করলে আপনি ড্যাশবোর্ডে আইডি কার্ড দেখতে পাবেন।");
-            
-            // পেজ রিফ্রেশ করা
+            alert("ধন্যবাদ " + name + "! আবেদন সফলভাবে জমা হয়েছে।");
             location.reload();
 
         } catch (error) {
-            console.error("Error adding document: ", error);
-            alert("দুঃখিত, কোনো একটি সমস্যা হয়েছে। আবার চেষ্টা করুন।");
+            console.error("Error: ", error);
+            alert("দুঃখিত, সমস্যা হয়েছে। ছবির সাইজ কমিয়ে আবার চেষ্টা করুন।");
             regBtn.disabled = false;
             regBtn.innerText = "আবেদন জমা দিন";
         }
@@ -217,7 +233,8 @@ window.handleRegistration = async function() {
         document.getElementById('cardImg').src = d.photo_url;
         document.getElementById('cardID').innerText = "M-" + phone.slice(-4);
         document.getElementById('cardBloodDisp').innerText = d.blood_group;
-        
+        document.getElementById('cardAddressDisp').innerText = d.address;
+
         // হিস্ট্রি লোড করার কোড...
     } else { 
         alert("মেম্বার পাওয়া যায়নি!"); 
@@ -225,7 +242,7 @@ window.handleRegistration = async function() {
 }
 
     window.loadAdminPanel = async function() {
-        if(prompt("Admin Password?") !== "aikotan2026") return;
+        if (prompt("Admin Password?") !== "aikotan2026") return;
         showSection('adminSection');
         const snap = await getDocs(collection(db, "members"));
         const list = document.getElementById('adminList');
@@ -254,7 +271,23 @@ window.handleRegistration = async function() {
         alert("Payment Updated!");
     }
 
-    window.removeMember = async (id) => { if(confirm("Delete?")) { await deleteDoc(doc(db, "members", id)); loadAdminPanel(); } }
+        window.removeMember = async (id) => { 
+        if(confirm("Delete?")) { 
+            await deleteDoc(doc(db, "members", id)); 
+            loadAdminPanel(); 
+        } 
+    };
+
+    // ডাউনলোড বাটন কাজ করানোর কোড
+    document.getElementById('downloadBtn').addEventListener('click', function() {
+        const card = document.getElementById('id-card-display');
+        html2canvas(card, { useCORS: true }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = 'Aikotan-ID-Card.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        });
+    });
 </script>
 </body>
 </html>

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aikotan Social Welfare Society</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --primary: #1a5f7a; --secondary: #159895; --accent: #57c5b6; --light: #f0f9f9; --white: #ffffff; }
+        * { box-sizing: border-box; scroll-behavior: smooth; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background-color: var(--light); color: #333; }
+        nav { background: var(--primary); padding: 15px; position: sticky; top: 0; z-index: 1000; display: flex; justify-content: space-around; flex-wrap: wrap; }
+        nav a { color: white; text-decoration: none; font-weight: bold; margin: 5px 10px; font-size: 14px; cursor: pointer; }
+        .hero { background: linear-gradient(rgba(26, 95, 122, 0.8), rgba(26, 95, 122, 0.8)), url('https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=800&q=60'); background-size: cover; color: white; text-align: center; padding: 60px 20px; }
+        .container { max-width: 1000px; margin: auto; padding: 20px; }
+        .section { display: none; background: var(--white); padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-top: 20px; }
+        .section.active { display: block; }
+        .btn { background: var(--secondary); color: white; padding: 10px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin: 5px 0; width: 100%; transition: 0.3s; }
+        .member-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
+        .member-table th, .member-table td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        .member-table th { background-color: var(--primary); color: white; }
+        .committee-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 20px; }
+        .profile-card { border: 1px solid #eee; padding: 15px; border-radius: 10px; text-align: center; }
+        .profile-card img { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; background: #ddd; margin-bottom: 10px; }
+        #id-card-display { width: 320px; background: white; border: 2px solid var(--primary); border-radius: 15px; margin: 20px auto; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.2); display: none; padding-bottom: 20px; }
+        .id-photo { width: 120px; height: 120px; border: 3px solid var(--secondary); margin: 20px auto; border-radius: 10px; overflow: hidden; }
+        .id-photo img { width: 100%; height: 100%; object-fit: cover; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a onclick="showSection('home')"><i class="fas fa-home"></i> Home</a>
+    <a onclick="showSection('committee')"><i class="fas fa-users"></i> Committee</a>
+    <a onclick="showSection('register')"><i class="fas fa-user-plus"></i> Registration</a>
+    <a onclick="showSection('dashboard')"><i class="fas fa-id-card"></i> Dashboard</a>
+    <a onclick="loadAdminPanel()"><i class="fas fa-lock"></i> Admin</a>
+</nav>
+
+<div class="hero">
+    <h1>ঐকতান সোশ্যাল ওয়েলফেয়ার সোসাইটি</h1>
+    <p>একতাই বল, সেবাই আমাদের ধর্ম</p>
+</div>
+
+<div class="container">
+    
+    <div id="home" class="section active">
+        <h2>আমাদের লক্ষ্য ও ভিশন</h2>
+        <p>কায়মা ও পার্শ্ববর্তী অঞ্চলের সেবায় আমরা নিয়োজিত।</p>
+        <h3>সকল সদস্য তালিকা</h3>
+        <div style="overflow-x: auto;">
+            <table class="member-table">
+                <thead>
+                    <tr><th>নাম</th><th>ব্লাড গ্রুপ</th><th>ঠিকানা</th><th>যোগদান</th></tr>
+                </thead>
+                <tbody id="publicMemberList"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="committee" class="section">
+        <h2>পরিচালন কমিটি</h2>
+        <div class="committee-grid">
+            <div class="profile-card">
+                <img src="https://via.placeholder.com/100" alt="President">
+                <h3>সভাপতি (President)</h3>
+                <p>প্রধান সিদ্ধান্ত গ্রহণকারী।</p>
+            </div>
+            <div class="profile-card">
+                <img src="https://via.placeholder.com/100" alt="Secretary">
+                <h3>সম্পাদক (Secretary)</h3>
+                <p>মূল চালিকাশক্তি।</p>
+            </div>
+            <div class="profile-card">
+                <img src="https://via.placeholder.com/100" alt="Cashier">
+                <h3>কোষাধ্যক্ষ (Cashier)</h3>
+                <p>আর্থিক হিসাব রক্ষক।</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="register" class="section">
+        <h2>নতুন সদস্য রেজিস্ট্রেশন</h2>
+        <form id="registrationForm">
+            <input type="text" id="regName" placeholder="পুরো নাম" required>
+            <textarea id="regAddress" placeholder="ঠিকানা" required></textarea>
+            <input type="text" id="transID" placeholder="মোবাইল নম্বর" required>
+            <select id="regBlood"><option value="O+">O+</option><option value="A+">A+</option><option value="B+">B+</option><option value="AB+">AB+</option></select>
+            <input type="file" id="regPhoto" accept="image/*" required>
+            <button type="button" class="btn" id="regBtn" onclick="handleRegistration()">আবেদন জমা দিন</button>
+        </form>
+    </div>
+
+    <div id="dashboard" class="section">
+        <h2>মেম্বার ড্যাশবোর্ড</h2>
+        <div id="loginArea">
+            <input type="text" id="loginPhone" placeholder="মোবাইল নম্বর">
+            <button class="btn" onclick="memberLogin()">লগইন</button>
+        </div>
+        <div id="memberContent" style="display: none;">
+            <div id="id-card-display">
+                <div style="background:var(--primary); color:white; padding:10px;">ID CARD</div>
+                <div class="id-photo"><img id="cardImg" src=""></div>
+                <h3 id="cardName"></h3>
+                <p>ID: <span id="cardID"></span></p>
+                <p>Blood: <span id="cardBloodDisp"></span></p>
+            </div>
+            <h3>পেমেন্ট ও অ্যাক্টিভিটি হিস্ট্রি</h3>
+            <table class="member-table">
+                <thead><tr><th>তারিখ</th><th>বিবরণ</th><th>অবস্থা</th></tr></thead>
+                <tbody id="memberHistoryList"></tbody>
+            </table>
+            <button class="btn" onclick="location.reload()">লগ আউট</button>
+        </div>
+    </div>
+
+    <div id="adminSection" class="section">
+        <h2>অ্যাডমিন প্যানেল</h2>
+        <div id="adminList"></div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc, deleteDoc, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = { apiKey: "AIzaSyDEXXHMhEXY3fih9jihO6", authDomain: "club-a2677.firebaseapp.com", projectId: "club-a2677", storageBucket: "club-a2677.appspot.com", messagingSenderId: "444470240648", appId: "1:444470240648:web:c8b81823" };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    window.showSection = function(id) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        if(id === 'home') loadPublicList();
+    }
+
+    async function loadPublicList() {
+        const snap = await getDocs(query(collection(db, "members"), where("status", "==", "Active")));
+        const list = document.getElementById('publicMemberList');
+        list.innerHTML = "";
+        snap.forEach(d => {
+            const u = d.data();
+            list.innerHTML += `<tr><td>${u.name}</td><td>${u.blood_group}</td><td>${u.address}</td><td>${u.joined_at.toDate().toLocaleDateString('bn-BD')}</td></tr>`;
+        });
+    }
+
+window.handleRegistration = async function() {
+    const name = document.getElementById('regName').value;
+    const phone = document.getElementById('transID').value;
+    const address = document.getElementById('regAddress').value;
+    const blood = document.getElementById('regBlood').value;
+    const file = document.getElementById('regPhoto').files[0];
+    const regBtn = document.getElementById('regBtn');
+
+    if(!name || !phone || !file) return alert("দয়া করে সব তথ্য পূরণ করুন।");
+
+    // বাটনটি ডিজেবল করা যাতে মেম্বার বারবার ক্লিক না করে
+    regBtn.disabled = true;
+    regBtn.innerText = "অপেক্ষা করুন...";
+
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = async (e) => {
+        try {
+            // Firestore-এ মেম্বার ডাটা সেভ
+            await addDoc(collection(db, "members"), {
+                name: name,
+                address: address,
+                phone: phone, 
+                blood_group: blood,
+                photo_url: e.target.result, 
+                status: "Pending", 
+                joined_at: new Date()
+            });
+
+            // হিস্ট্রি সেভ
+            await addDoc(collection(db, "history"), { 
+                member_phone: phone, 
+                date: new Date(), 
+                desc: "রেজিস্ট্রেশন আবেদন জমা দেওয়া হয়েছে", 
+                status: "Pending" 
+            });
+
+            // সফল মেসেজ দেখানো
+            alert("ধন্যবাদ " + name + "! আপনার আবেদনটি সফলভাবে ঐকতান সোসাইটির ডাটাবেসে জমা হয়েছে। অ্যাডমিন অ্যাপ্রুভ করলে আপনি ড্যাশবোর্ডে আইডি কার্ড দেখতে পাবেন।");
+            
+            // পেজ রিফ্রেশ করা
+            location.reload();
+
+        } catch (error) {
+            console.error("Error adding document: ", error);
+            alert("দুঃখিত, কোনো একটি সমস্যা হয়েছে। আবার চেষ্টা করুন।");
+            regBtn.disabled = false;
+            regBtn.innerText = "আবেদন জমা দিন";
+        }
+    };
+}
+
+    window.memberLogin = async function() {
+        const phone = document.getElementById('loginPhone').value;
+        const snap = await getDocs(query(collection(db, "members"), where("phone", "==", phone)));
+        if(!snap.empty) {
+            const d = snap.docs[0].data();
+            document.getElementById('loginArea').style.display = 'none';
+            document.getElementById('memberContent').style.display = 'block';
+            document.getElementById('id-card-display').style.display = 'block';
+            document.getElementById('cardName').innerText = d.name;
+            document.getElementById('cardImg').src = d.photo_url;
+            document.getElementById('cardID').innerText = "M-"+phone.slice(-4);
+            document.getElementById('cardBloodDisp').innerText = d.blood_group;
+            
+            const hSnap = await getDocs(query(collection(db, "history"), where("member_phone", "==", phone), orderBy("date", "desc")));
+            const hList = document.getElementById('memberHistoryList');
+            hList.innerHTML = "";
+            hSnap.forEach(hd => {
+                const h = hd.data();
+                hList.innerHTML += `<tr><td>${h.date.toDate().toLocaleDateString('bn-BD')}</td><td>${h.desc}</td><td>${h.status}</td></tr>`;
+            });
+        } else { alert("মেম্বার পাওয়া যায়নি!"); }
+    }
+
+    window.loadAdminPanel = async function() {
+        if(prompt("Admin Password?") !== "aikotan2026") return;
+        showSection('adminSection');
+        const snap = await getDocs(collection(db, "members"));
+        const list = document.getElementById('adminList');
+        list.innerHTML = "";
+        snap.forEach(d => {
+            const u = d.data();
+            list.innerHTML += `<div style="border-bottom:1px solid #ccc; padding:10px;">
+                <p>${u.name} (${u.phone})</p>
+                <button class="btn" style="width:auto" onclick="approveMember('${d.id}', '${u.phone}')">Approve</button>
+                <button class="btn" style="width:auto; background:orange" onclick="addPaymentHistory('${u.phone}')">ফি আপডেট</button>
+                <button class="btn" style="width:auto; background:red" onclick="removeMember('${d.id}')">Delete</button>
+            </div>`;
+        });
+    }
+
+    window.approveMember = async (id, phone) => {
+        await updateDoc(doc(db, "members", id), {status: "Active"});
+        await addDoc(collection(db, "history"), { member_phone: phone, date: new Date(), desc: "মেম্বারশিপ অ্যাপ্রুভড", status: "Success" });
+        alert("Approved!"); loadAdminPanel();
+    }
+
+    window.addPaymentHistory = async (phone) => {
+        const month = prompt("কোন মাসের ফি? (উদা: জানুয়ারি ২০২৬)");
+        if(!month) return;
+        await addDoc(collection(db, "history"), { member_phone: phone, date: new Date(), desc: `মাসিক ফি (${month})`, status: "Paid" });
+        alert("Payment Updated!");
+    }
+
+    window.removeMember = async (id) => { if(confirm("Delete?")) { await deleteDoc(doc(db, "members", id)); loadAdminPanel(); } }
+</script>
+</body>
+</html>

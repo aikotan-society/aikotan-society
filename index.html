@@ -6,6 +6,7 @@
     <title>Aikotan Social Welfare Society</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 
     <style>
         :root { --primary: #1a5f7a; --secondary: #159895; --accent: #57c5b6; --light: #f0f9f9; --white: #ffffff; }
@@ -13,25 +14,17 @@
         body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background-color: var(--light); color: #333; }
         nav { background: var(--primary); padding: 15px; position: sticky; top: 0; z-index: 1000; display: flex; justify-content: space-around; flex-wrap: wrap; }
         nav a { color: white; text-decoration: none; font-weight: bold; margin: 5px 10px; font-size: 14px; cursor: pointer; }
-        .hero { background: linear-gradient(rgba(26, 95, 122, 0.8), rgba(26, 95, 122, 0.8)), url('https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=800&q=60'); background-size: cover; color: white; text-align: center; padding: 60px 20px; }
+        .hero { background: linear-gradient(rgba(26, 95, 122, 0.8), rgba(26, 95, 122, 0.8)), url('https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=800&q=60'); background-size: cover; color: white; text-align: center; padding: 40px 20px; }
         .container { max-width: 1000px; margin: auto; padding: 20px; }
-        
-        /* Section logic */
         .section { display: none; background: var(--white); padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-top: 20px; }
         .section.active { display: block !important; }
-        
         .btn { background: var(--secondary); color: white; padding: 10px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin: 5px 0; width: 100%; transition: 0.3s; }
-        .btn:disabled { background: #ccc; }
-        .member-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
-        .member-table th, .member-table td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        .member-table th { background-color: var(--primary); color: white; }
-        .committee-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 20px; }
-        .profile-card { border: 1px solid #eee; padding: 15px; border-radius: 10px; text-align: center; }
-        .profile-card img { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; background: #ddd; margin-bottom: 10px; }
-        #id-card-display { width: 320px; background: white; border: 2px solid var(--primary); border-radius: 15px; margin: 20px auto; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.2); display: none; padding-bottom: 20px; }
-        .id-photo { width: 120px; height: 120px; border: 3px solid var(--secondary); margin: 20px auto; border-radius: 10px; overflow: hidden; }
-        .id-photo img { width: 100%; height: 100%; object-fit: cover; }
         input, textarea, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; }
+        
+        /* ID Card Style with Barcode */
+        .id-photo { width: 100px; height: 100px; border: 2px solid var(--secondary); margin: 10px auto; border-radius: 10px; overflow: hidden; }
+        .id-photo img { width: 100%; height: 100%; object-fit: cover; }
+        #barcode { margin-top: 10px; max-width: 200px; height: auto; }
     </style>
 </head>
 <body>
@@ -39,6 +32,7 @@
 <nav>
     <a onclick="showSection('home')"><i class="fas fa-home"></i> Home</a>
     <a onclick="showSection('committee')"><i class="fas fa-users"></i> Committee</a>
+    <a onclick="showSection('member-list-section')"><i class="fas fa-list"></i> Member List</a>
     <a onclick="showSection('register')"><i class="fas fa-user-plus"></i> Registration</a>
     <a onclick="showSection('dashboard')"><i class="fas fa-id-card"></i> Dashboard</a>
     <a onclick="loadAdminPanel()"><i class="fas fa-lock"></i> Admin</a>
@@ -51,101 +45,87 @@
 
 <div class="container">
     <div id="home" class="section active">
-        <h2>আমাদের লক্ষ্য ও ভিশন</h2>
-        <p>কায়মা ও পার্শ্ববর্তী অঞ্চলের সেবায় আমরা নিয়োজিত।</p>
-        <h3>সকল সদস্য তালিকা</h3>
-        <div style="overflow-x: auto;">
-            <table class="member-table">
-                <thead>
-                    <tr><th>নাম</th><th>ব্লাড গ্রুপ</th><th>ঠিকানা</th><th>যোগদান</th></tr>
-                </thead>
-                <tbody id="publicMemberList"></tbody>
-            </table>
-        </div>
+        <h2>স্বাগতম</h2>
+        <p>আমরা জনকল্যাণে ঐক্যবদ্ধ। বিস্তারিত জানতে মেনু ব্যবহার করুন।</p>
     </div>
 
     <div id="committee" class="section">
         <h2>পরিচালন কমিটি</h2>
-        <div class="committee-grid">
-            <div class="profile-card">
-                <img src="https://via.placeholder.com/100" alt="President">
-                <h3>সভাপতি (President)</h3>
-                <p>প্রধান সিদ্ধান্ত গ্রহণকারী।</p>
-            </div>
-            <div class="profile-card">
-                <img src="https://via.placeholder.com/100" alt="Secretary">
-                <h3>সম্পাদক (Secretary)</h3>
-                <p>মূল চালিকাশক্তি।</p>
-            </div>
-            <div class="profile-card">
-                <img src="https://via.placeholder.com/100" alt="Cashier">
-                <h3>কোষাধ্যক্ষ (Cashier)</h3>
-                <p>আর্থিক হিসাব রক্ষক।</p>
-            </div>
+        <p>সভাপতি, সম্পাদক এবং কোষাধ্যক্ষর তথ্য এখানে থাকবে।</p>
+        <button class="btn" onclick="showSection('home')">ফিরে যান</button>
+    </div>
+
+    <div id="member-list-section" class="section">
+        <h2>সদস্য তালিকা</h2>
+        <div style="overflow-x: auto;">
+            <table style="width:100%; border-collapse: collapse;">
+                <thead><tr style="background:var(--primary); color:white;"><th>নাম</th><th>ব্লাড</th><th>ঠিকানা</th></tr></thead>
+                <tbody id="fullMemberList"></tbody>
+            </table>
         </div>
+        <button class="btn" onclick="showSection('home')">ফিরে যান</button>
     </div>
 
     <div id="register" class="section">
-        <h2>নতুন সদস্য রেজিস্ট্রেশন</h2>
-        <form id="registrationForm">
-            <input type="text" id="regName" placeholder="পুরো নাম" required>
-            <textarea id="regAddress" placeholder="ঠিকানা" required></textarea>
-            <input type="text" id="transID" placeholder="মোবাইল নম্বর" required>
-            <select id="regBlood">
-                <option value="O+">O+</option>
-                <option value="A+">A+</option>
-                <option value="B+">B+</option>
-                <option value="AB+">AB+</option>
-            </select>
-            <label style="font-size: 12px; color: #666;">আপনার ফটো আপলোড করুন:</label>
-            <input type="file" id="regPhoto" accept="image/*" required>
-
-            <div style="margin: 15px 0; font-size: 13px; text-align: left; color: #333;">
-                <input type="checkbox" id="termsCheck">
-                <label for="termsCheck">আমি ক্লাবের সকল <span onclick="showSection('rules')" style="color: blue; text-decoration: underline; cursor: pointer;">নিয়মাবলী ও নির্দেশিকা</span> পড়েছি এবং মেনে চলতে রাজি আছি।</label>
-            </div>
-
-            <button type="button" id="regBtn" class="btn" onclick="handleRegistration()">আবেদন জমা দিন</button>
-        </form>
+        <h2>রেজিস্ট্রেশন করুন</h2>
+        <input type="text" id="regName" placeholder="নাম">
+        <textarea id="regAddress" placeholder="ঠিকানা"></textarea>
+        <input type="text" id="transID" placeholder="ফোন নম্বর">
+        <select id="regBlood"><option value="O+">O+</option><option value="A+">A+</option><option value="B+">B+</option><option value="AB+">AB+</option></select>
+        <input type="file" id="regPhoto" accept="image/*">
+        <div style="margin:10px 0;"><input type="checkbox" id="termsCheck"> আমি <span onclick="showSection('rules')" style="color:blue; cursor:pointer;">নিয়মাবলী</span> মেনে চলব।</div>
+        <button class="btn" id="regBtn" onclick="handleRegistration()">আবেদন জমা দিন</button>
     </div>
 
     <div id="rules" class="section">
-        <h2 style="color: #004d40;">সদস্যপদ নিয়মাবলী ও নির্দেশিকা</h2>
-        <div style="text-align: left; background: #f9f9f9; padding: 15px; border-radius: 10px; line-height: 1.6; height: 350px; overflow-y: scroll; border: 1px solid #ddd; font-size: 14px;">
-            <p><strong>১. সদস্যপদ:</strong> আবেদন এবং ইন্টারভিউ প্রক্রিয়ার মাধ্যমে সদস্যপদ নিশ্চিত করা হবে। প্রত্যেক সদস্যকে একটি ডিজিটাল আইডি কার্ড দেওয়া হবে।</p>
-            <p><strong>২. আর্থিক নিয়মাবলী:</strong> ভর্তি ফি এবং মাসিক ফি প্রতি মাসের ১০ তারিখের মধ্যে জমা দেওয়া বাধ্যতামূলক। অর্থের হিসাব প্রতি মাসে জানানো হবে।</p>
-            <p><strong>৩. হোয়াটসঅ্যাপ গ্রুপ:</strong> মার্জিত ভাষা ব্যবহার করতে হবে। রাজনীতি, ধর্মীয় উস্কানিমূলক পোস্ট বা স্প্যাম মেসেজ করা কঠোরভাবে নিষিদ্ধ।</p>
-            <p><strong>৪. দায়িত্ব:</strong> সভাপতি, সম্পাদক এবং কোষাধ্যক্ষর সিদ্ধান্তই চূড়ান্ত। সদস্যরা সরকারি কাজে যুক্ত থাকায় পেশাদারী মর্যাদা বজায় রাখতে হবে।</p>
-            <p><strong>৫. ক্লাবের লক্ষ্য:</strong> আমাদের মূল মন্ত্র হলো <b>'Solve, Don't Sell'</b>। বছরে অন্তত একটি সামাজিক কল্যাণমূলক কাজ করা হবে।</p>
-            <hr>
-            <p><i>আমি এই ক্লাবের প্রতিষ্ঠাতা হিসেবে অঙ্গীকার করছি যে আমরা একটি আদর্শ এবং সুশৃঙ্খল ক্লাব পরিচালনা করব।</i></p>
-        </div>
-        <button onclick="showSection('register')" class="btn" style="background: #004d40;">বুঝেছি, ফর্মে ফিরে যান</button>
+        <h2>নিয়মাবলী</h2>
+        <p>১. সদস্যপদ এবং অন্তর্ভুক্তি (Membership & Joining)
+A - আবেদন (Application): ক্লাবে যোগদানের জন্য নির্দিষ্ট ফর্ম পূরণ করতে হবে এবং ইন্টারভিউ প্রক্রিয়ার মাধ্যমে সদস্যপদ নিশ্চিত করা হবে।
+B - পরিচয়পত্র (ID Card): প্রত্যেক সদস্যকে একটি ডিজিটাল আইডি কার্ড দেওয়া হবে, যা ক্লাবের সদস্য হিসেবে আপনার একমাত্র পরিচয়।
+C - গোপনীয়তা (Confidentiality): ক্লাবের অভ্যন্তরীণ আলোচনা বা সদস্যদের ব্যক্তিগত তথ্য গ্রুপের বাইরে শেয়ার করা যাবে না।
+২. আর্থিক নিয়মাবলী (Financial Rules)
+D - ভর্তি ফি (Joining Fee): সদস্যপদ নিশ্চিত করার সময় এককালীন রেজিস্ট্রেশন ফি জমা দিতে হবে।
+E - মাসিক ফি (Monthly Fee): প্রতি মাসের ১০ তারিখের মধ্যে মাসিক ফি জমা দেওয়া বাধ্যতামূলক।
+F - স্বচ্ছতা (Transparency): সংগৃহীত অর্থের হিসাব প্রতি মাসে গ্রুপের সকল সদস্যকে জানানো হবে।
+৩. হোয়াটসঅ্যাপ গ্রুপ ব্যবহারের নিয়ম (WhatsApp Code of Conduct)
+G - মার্জিত ভাষা (Decent Language): গ্রুপে কথা বলার সময় সবসময় সৌজন্য বজায় রাখতে হবে। কোনো অশালীন মন্তব্য সহ্য করা হবে না।
+H - রাজনীতি ও ধর্ম (No Politics/Religion): কোনো রাজনৈতিক দল বা ধর্মীয় উস্কানিমূলক পোস্ট করা কঠোরভাবে নিষিদ্ধ।
+I - স্প্যাম ও ফরোয়ার্ড (No Spam): গুড মর্নিং মেসেজ, অপ্রাসঙ্গিক ভিডিও বা ফেক নিউজ (Fake News) ছড়ানো যাবে না।
+J - সময়ের গুরুত্ব (Timing): জরুরি প্রয়োজন ছাড়া গভীর রাতে গ্রুপে মেসেজ করা থেকে বিরত থাকতে হবে।
+৪. দায়িত্ব ও পদাধিকারী (Roles & Responsibilities)
+K - পদমর্যাদা (Designation): সভাপতি (President), সম্পাদক (Secretary) এবং কোষাধ্যক্ষ (Treasurer)-এর সিদ্ধান্তই চূড়ান্ত বলে গণ্য হবে।
+L - সহকারী (Assistants): প্রতিটি পদের জন্য একজন সহকারী থাকবেন যারা মূল পদাধিকারীর অনুপস্থিতিতে দায়িত্ব পালন করবেন।
+M - পেশাদারী মর্যাদা (Professionalism): যেহেতু সকল সদস্য সরকারি কাজের সাথে যুক্ত, তাই ক্লাবের কোনো কাজ যেন আপনার পেশাগত মর্যাদাকে ক্ষুণ্ণ না করে।
+৫. সভা ও সম্মেলন (Meetings)
+N - বার্ষিক মিলনমেলা (Annual Meet): বছরে একবার সশরীরে উপস্থিত হওয়া বাধ্যতামূলক। এটি নেটওয়ার্কিং এবং বন্ধুত্বের জন্য জরুরি।
+O - ডিজিটাল মিটিং (Digital Meetings): সময় সময় WhatsApp বা Zoom-এ জরুরি আলোচনা হতে পারে, সেখানে সক্রিয় অংশগ্রহণ প্রয়োজন।
+৬. বহিষ্কার ও শৃঙ্খলা (Termination & Discipline)
+P - নিয়ম ভঙ্গ (Violation): পরপর তিন মাস ফি জমা না দিলে বা ক্লাবের শৃঙ্খলা ভঙ্গ করলে সদস্যপদ বাতিল হতে পারে।
+Q - কারণ দর্শানো (Show Cause): কোনো সদস্যকে বাদ দেওয়ার আগে তাকে তার বক্তব্য জানানোর একটি সুযোগ দেওয়া হবে।
+৭. ক্লাবের লক্ষ্য (Club Objectives)
+R - সেবা ও সমাধান (Solve, Don't Sell): আমাদের ক্লাবের মূল মন্ত্র হলো একে অপরকে সাহায্য করা এবং সমস্যার সমাধান খোঁজা, ব্যবসা করা নয়।
+S - সামাজিক কাজ (Social Work): ক্লাব থেকে বছরে অন্তত একটি সামাজিক কল্যাণমূলক কাজ করা হবে।
+ঘোষণা: আমি [আপনার নাম], এই ক্লাবের প্রতিষ্ঠাতা হিসেবে অঙ্গীকার করছি যে আমরা একটি আদর্শ এবং সুশৃঙ্খল ক্লাব পরিচালনা করব।</p>
+        <button class="btn" onclick="showSection('register')">ফিরে যান</button>
     </div>
 
     <div id="dashboard" class="section">
         <h2>মেম্বার ড্যাশবোর্ড</h2>
         <div id="loginArea">
-            <input type="text" id="loginPhone" placeholder="আপনার মোবাইল নম্বর">
+            <input type="text" id="loginPhone" placeholder="ফোন নম্বর">
             <button class="btn" onclick="memberLogin()">লগইন</button>
         </div>
-        <div id="memberContent" style="display: none;">
-            <div id="id-card-display" style="width: 320px; background: white; border: 2px solid var(--primary); border-radius: 15px; margin: 20px auto; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.1); overflow: hidden;">
-                <div style="background:var(--primary); color:white; padding:12px; font-weight:bold; letter-spacing: 1px;">AIKOTAN SOCIETY - ID CARD</div>
-                <div style="padding: 20px;">
-                    <div class="id-photo">
-                        <img id="cardImg" src="" alt="Photo">
-                    </div>
-                    <h3 id="cardName" style="margin: 10px 0; font-size: 20px;"></h3>
-                    <p>Member ID: <span id="cardID" style="font-weight: bold;"></span></p>
-                    <p>Blood Group: <span id="cardBloodDisp" style="font-weight: bold;"></span></p>
-                    <p>Status: <span style="color: green; font-weight: bold;">Active Member</span></p>
-                    <hr>
-                    <p style="font-size: 11px; color: #777;"><span id="cardAddressDisp"></span></p>
-                </div>
+        <div id="memberContent" style="display:none;">
+            <div id="id-card-display" style="width: 280px; background: white; border: 2px solid var(--primary); border-radius: 10px; margin: 20px auto; padding: 15px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                <h3 style="margin:0; font-size:16px; color:var(--primary);">AIKOTAN SOCIETY</h3>
+                <div class="id-photo"><img id="cardImg" src=""></div>
+                <h2 id="cardName" style="margin:5px 0; font-size:18px;"></h2>
+                <p style="margin:2px 0;">Blood: <span id="cardBloodDisp"></span></p>
+                <p style="margin:2px 0;">ID: <span id="cardID"></span></p>
+                <svg id="barcode"></svg>
             </div>
-            <button class="btn" id="downloadBtn"><i class="fas fa-download"></i> কার্ড ডাউনলোড করুন</button>
-            <button class="btn" onclick="location.reload()" style="background: #666;">লগ আউট</button>
+            <button class="btn" id="downloadBtn">ডাউনলোড কার্ড</button>
+            <button class="btn" onclick="location.reload()" style="background:#666;">লগ আউট</button>
         </div>
     </div>
 
@@ -167,95 +147,113 @@
       messagingSenderId: "444470240648",
       appId: "1:444470240648:web:c8b81823126f58f44d80a1"
     };
+
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Section Management
     window.showSection = function(id) {
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
         const target = document.getElementById(id);
         if(target) target.classList.add('active');
-        if(id === 'home') loadPublicList();
+        if(id === 'member-list-section') loadAllMembers();
     }
 
-    // Public List
-    async function loadPublicList() {
-        const snap = await getDocs(query(collection(db, "members"), where("status", "==", "Active")));
-        const list = document.getElementById('publicMemberList');
-        list.innerHTML = "";
-        snap.forEach(d => {
-            const u = d.data();
-            list.innerHTML += `<tr><td>${u.name}</td><td>${u.blood_group}</td><td>${u.address}</td><td>${u.joined_at.toDate().toLocaleDateString('bn-BD')}</td></tr>`;
-        });
-    }
-
-    // Registration Handler
     window.handleRegistration = async function() {
-        if (!document.getElementById('termsCheck').checked) {
-            alert("দয়া করে নিয়মাবলীতে টিক দিয়ে সম্মতি জানান!");
-            return;
-        }
+    if (!document.getElementById('termsCheck').checked) {
+        return alert("দয়া করে নিয়মাবলীতে টিক দিয়ে সম্মতি জানান!");
+    }
 
-        const name = document.getElementById('regName').value;
-        const phone = document.getElementById('transID').value;
-        const address = document.getElementById('regAddress').value;
-        const blood = document.getElementById('regBlood').value;
-        const file = document.getElementById('regPhoto').files[0];
-        const regBtn = document.getElementById('regBtn');
+    const name = document.getElementById('regName').value;
+    const phone = document.getElementById('transID').value;
+    const address = document.getElementById('regAddress').value;
+    const blood = document.getElementById('regBlood').value;
+    const fileInput = document.getElementById('regPhoto');
+    const file = fileInput.files[0];
 
-        if(!name || !phone || !file) return alert("দয়া করে সব তথ্য পূরণ করুন।");
+    if(!name || !phone || !file) return alert("দয়া করে সব তথ্য পূরণ করুন।");
 
-        regBtn.disabled = true;
-        regBtn.innerText = "অপেক্ষা করুন...";
+    const regBtn = document.getElementById('regBtn');
+    regBtn.disabled = true;
+    regBtn.innerText = "প্রসেসিং হচ্ছে...";
 
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = async (e) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = function(event) {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = async function() {
+            // ছবির সাইজ কমানোর জন্য ক্যানভাস ব্যবহার
+            const canvas = document.createElement('canvas');
+            const MAX_WIDTH = 400; // ছবিটি ৪০০ পিক্সেলের মধ্যে ছোট হবে
+            const scaleSize = MAX_WIDTH / img.width;
+            canvas.width = MAX_WIDTH;
+            canvas.height = img.height * scaleSize;
+
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+            // ছবির কোয়ালিটি কমিয়ে ছোট করা (০.৭ মানে ৭০% কোয়ালিটি)
+            const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+
             try {
                 await addDoc(collection(db, "members"), {
-                    name: name,
-                    address: address,
-                    phone: phone, 
-                    blood_group: blood,
-                    photo_url: e.target.result, 
-                    status: "Pending", 
-                    joined_at: new Date()
+                    name, address, phone, blood_group: blood, photo_url: compressedBase64, status: "Pending", joined_at: new Date()
                 });
-                alert("ধন্যবাদ " + name + "! আবেদন সফলভাবে জমা হয়েছে।");
+
+                // আবেদন সফল হওয়ার মেসেজ
+                alert("ধন্যবাদ " + name + "!\nআপনার আবেদনটি সফলভাবে জমা হয়েছে।");
                 location.reload();
+
             } catch (error) {
-                alert("ভুল হয়েছে। ছবির সাইজ কমিয়ে চেষ্টা করুন।");
+                console.error("Firebase Error:", error);
+                alert("দুঃখিত, প্রযুক্তিগত সমস্যা হয়েছে। আবার চেষ্টা করুন।");
                 regBtn.disabled = false;
                 regBtn.innerText = "আবেদন জমা দিন";
             }
         };
-    }
+    };
+}
 
-    // Login Handler
     window.memberLogin = async function() {
         const phone = document.getElementById('loginPhone').value;
-        const snap = await getDocs(query(collection(db, "members"), where("phone", "==", phone)));
+        const q = query(collection(db, "members"), where("phone", "==", phone));
+        const snap = await getDocs(q);
         
         if(!snap.empty) {
             const d = snap.docs[0].data();
-            if(d.status !== "Active") {
-                alert("আপনার আবেদনটি এখনও 'Pending' আছে।");
-                return;
-            }
+            if(d.status !== "Active") return alert("আপনার কার্ডটি এখনও পেন্ডিং।");
+            
             document.getElementById('loginArea').style.display = 'none';
             document.getElementById('memberContent').style.display = 'block';
-            document.getElementById('id-card-display').style.display = 'block';
             document.getElementById('cardName').innerText = d.name;
             document.getElementById('cardImg').src = d.photo_url;
-            document.getElementById('cardID').innerText = "M-" + phone.slice(-4);
             document.getElementById('cardBloodDisp').innerText = d.blood_group;
-            document.getElementById('cardAddressDisp').innerText = d.address;
-        } else { 
-            alert("মেম্বার পাওয়া যায়নি!"); 
+            const memberID = "AS-" + phone.slice(-4);
+            document.getElementById('cardID').innerText = memberID;
+
+            // বারকোড জেনারেট করা
+            JsBarcode("#barcode", memberID, {
+                format: "CODE128",
+                lineColor: "#000",
+                width: 2,
+                height: 40,
+                displayValue: true
+            });
+        } else {
+            alert("মোবাইল নম্বরটি সঠিক নয়।");
         }
     }
 
-    // Admin Functions
+    async function loadAllMembers() {
+        const snap = await getDocs(query(collection(db, "members"), where("status", "==", "Active")));
+        const list = document.getElementById('fullMemberList');
+        list.innerHTML = "";
+        snap.forEach(d => {
+            const u = d.data();
+            list.innerHTML += `<tr><td style="padding:10px; border:1px solid #ddd;">${u.name}</td><td style="padding:10px; border:1px solid #ddd;">${u.blood_group}</td><td style="padding:10px; border:1px solid #ddd;">${u.address}</td></tr>`;
+        });
+    }
+
     window.loadAdminPanel = async function() {
         if (prompt("Admin Password?") !== "aikotan2026") return;
         showSection('adminSection');
@@ -273,27 +271,23 @@
     }
 
     window.approveMember = async (id) => {
-        await updateDoc(doc(db, "members", id), {status: "Active"});
+        await updateDoc(doc(db, "members", id), { status: "Active" });
         alert("Approved!"); loadAdminPanel();
     }
 
-    window.removeMember = async (id) => { 
-        if(confirm("Delete?")) { 
-            await deleteDoc(doc(db, "members", id)); 
-            loadAdminPanel(); 
-        } 
-    };
+    window.removeMember = async (id) => {
+        if(confirm("Delete?")) { await deleteDoc(doc(db, "members", id)); loadAdminPanel(); }
+    }
 
-    // Card Download
     document.getElementById('downloadBtn').addEventListener('click', function() {
-        const card = document.getElementById('id-card-display');
-        html2canvas(card, { useCORS: true }).then(canvas => {
+        html2canvas(document.getElementById('id-card-display'), { useCORS: true }).then(canvas => {
             const link = document.createElement('a');
-            link.download = 'Aikotan-ID-Card.png';
+            link.download = 'AS-ID-Card.png';
             link.href = canvas.toDataURL();
             link.click();
         });
     });
 </script>
 </body>
-</html>
+    </html>
+    

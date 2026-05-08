@@ -15,9 +15,13 @@
         nav a { color: white; text-decoration: none; font-weight: bold; margin: 5px 10px; font-size: 14px; cursor: pointer; }
         .hero { background: linear-gradient(rgba(26, 95, 122, 0.8), rgba(26, 95, 122, 0.8)), url('https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=800&q=60'); background-size: cover; color: white; text-align: center; padding: 60px 20px; }
         .container { max-width: 1000px; margin: auto; padding: 20px; }
+        
+        /* Section logic */
         .section { display: none; background: var(--white); padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-top: 20px; }
-        .section.active { display: block; }
+        .section.active { display: block !important; }
+        
         .btn { background: var(--secondary); color: white; padding: 10px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin: 5px 0; width: 100%; transition: 0.3s; }
+        .btn:disabled { background: #ccc; }
         .member-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
         .member-table th, .member-table td { border: 1px solid #ddd; padding: 12px; text-align: left; }
         .member-table th { background-color: var(--primary); color: white; }
@@ -27,6 +31,7 @@
         #id-card-display { width: 320px; background: white; border: 2px solid var(--primary); border-radius: 15px; margin: 20px auto; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.2); display: none; padding-bottom: 20px; }
         .id-photo { width: 120px; height: 120px; border: 3px solid var(--secondary); margin: 20px auto; border-radius: 10px; overflow: hidden; }
         .id-photo img { width: 100%; height: 100%; object-fit: cover; }
+        input, textarea, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; }
     </style>
 </head>
 <body>
@@ -45,7 +50,6 @@
 </div>
 
 <div class="container">
-    
     <div id="home" class="section active">
         <h2>আমাদের লক্ষ্য ও ভিশন</h2>
         <p>কায়মা ও পার্শ্ববর্তী অঞ্চলের সেবায় আমরা নিয়োজিত।</p>
@@ -87,43 +91,61 @@
             <input type="text" id="regName" placeholder="পুরো নাম" required>
             <textarea id="regAddress" placeholder="ঠিকানা" required></textarea>
             <input type="text" id="transID" placeholder="মোবাইল নম্বর" required>
-            <select id="regBlood"><option value="O+">O+</option><option value="A+">A+</option><option value="B+">B+</option><option value="AB+">AB+</option></select>
+            <select id="regBlood">
+                <option value="O+">O+</option>
+                <option value="A+">A+</option>
+                <option value="B+">B+</option>
+                <option value="AB+">AB+</option>
+            </select>
+            <label style="font-size: 12px; color: #666;">আপনার ফটো আপলোড করুন:</label>
             <input type="file" id="regPhoto" accept="image/*" required>
-            <button type="button" class="btn" id="regBtn" onclick="handleRegistration()">আবেদন জমা দিন</button>
+
+            <div style="margin: 15px 0; font-size: 13px; text-align: left; color: #333;">
+                <input type="checkbox" id="termsCheck">
+                <label for="termsCheck">আমি ক্লাবের সকল <span onclick="showSection('rules')" style="color: blue; text-decoration: underline; cursor: pointer;">নিয়মাবলী ও নির্দেশিকা</span> পড়েছি এবং মেনে চলতে রাজি আছি।</label>
+            </div>
+
+            <button type="button" id="regBtn" class="btn" onclick="handleRegistration()">আবেদন জমা দিন</button>
         </form>
+    </div>
+
+    <div id="rules" class="section">
+        <h2 style="color: #004d40;">সদস্যপদ নিয়মাবলী ও নির্দেশিকা</h2>
+        <div style="text-align: left; background: #f9f9f9; padding: 15px; border-radius: 10px; line-height: 1.6; height: 350px; overflow-y: scroll; border: 1px solid #ddd; font-size: 14px;">
+            <p><strong>১. সদস্যপদ:</strong> আবেদন এবং ইন্টারভিউ প্রক্রিয়ার মাধ্যমে সদস্যপদ নিশ্চিত করা হবে। প্রত্যেক সদস্যকে একটি ডিজিটাল আইডি কার্ড দেওয়া হবে।</p>
+            <p><strong>২. আর্থিক নিয়মাবলী:</strong> ভর্তি ফি এবং মাসিক ফি প্রতি মাসের ১০ তারিখের মধ্যে জমা দেওয়া বাধ্যতামূলক। অর্থের হিসাব প্রতি মাসে জানানো হবে।</p>
+            <p><strong>৩. হোয়াটসঅ্যাপ গ্রুপ:</strong> মার্জিত ভাষা ব্যবহার করতে হবে। রাজনীতি, ধর্মীয় উস্কানিমূলক পোস্ট বা স্প্যাম মেসেজ করা কঠোরভাবে নিষিদ্ধ।</p>
+            <p><strong>৪. দায়িত্ব:</strong> সভাপতি, সম্পাদক এবং কোষাধ্যক্ষর সিদ্ধান্তই চূড়ান্ত। সদস্যরা সরকারি কাজে যুক্ত থাকায় পেশাদারী মর্যাদা বজায় রাখতে হবে।</p>
+            <p><strong>৫. ক্লাবের লক্ষ্য:</strong> আমাদের মূল মন্ত্র হলো <b>'Solve, Don't Sell'</b>। বছরে অন্তত একটি সামাজিক কল্যাণমূলক কাজ করা হবে।</p>
+            <hr>
+            <p><i>আমি এই ক্লাবের প্রতিষ্ঠাতা হিসেবে অঙ্গীকার করছি যে আমরা একটি আদর্শ এবং সুশৃঙ্খল ক্লাব পরিচালনা করব।</i></p>
+        </div>
+        <button onclick="showSection('register')" class="btn" style="background: #004d40;">বুঝেছি, ফর্মে ফিরে যান</button>
     </div>
 
     <div id="dashboard" class="section">
         <h2>মেম্বার ড্যাশবোর্ড</h2>
         <div id="loginArea">
-            <input type="text" id="loginPhone" placeholder="মোবাইল নম্বর">
+            <input type="text" id="loginPhone" placeholder="আপনার মোবাইল নম্বর">
             <button class="btn" onclick="memberLogin()">লগইন</button>
         </div>
         <div id="memberContent" style="display: none;">
-                    <div id="id-card-display" style="width: 320px; background: white; border: 2px solid var(--primary); border-radius: 15px; margin: 20px auto; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.1); overflow: hidden;">
-            <div style="background:var(--primary); color:white; padding:12px; font-weight:bold; letter-spacing: 1px;">AIKOTAN SOCIETY - ID CARD</div>
-            <div style="padding: 20px;">
-                <div class="id-photo" style="width: 140px; height: 140px; border: 3px solid var(--secondary); margin: 0 auto 15px; border-radius: 10px; overflow: hidden;">
-                    <img id="cardImg" src="" style="width: 100%; height: 100%; object-fit: cover;">
-                </div>
-                <h3 id="cardName" style="margin: 10px 0; font-size: 20px; color: #333;"></h3>
-                <p style="margin: 5px 0; color: #555;">Member ID: <span id="cardID" style="font-weight: bold;"></span></p>
-                <p style="margin: 5px 0; color: #555;">Blood Group: <span id="cardBloodDisp" style="font-weight: bold;"></span></p>
-                <p style="margin: 5px 0; color: #555;">Status: <span style="color: green; font-weight: bold;">Active Member</span></p>
-                <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
-                <p style="font-size: 11px; color: #777; line-height: 1.4;"><span id="cardAddressDisp"></span></p>
-                <div style="margin-top:15px; display:flex; justify-content:flex-end;">
-                    <div style="text-align:center;">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Jon_Kirsch%27s_Signature.png" alt="Signature" style="width:60px; height:auto;">
-                        <p style="border-top:1px solid #333; font-size:9px; margin-top:2px;">President's Signature</p>
+            <div id="id-card-display" style="width: 320px; background: white; border: 2px solid var(--primary); border-radius: 15px; margin: 20px auto; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.1); overflow: hidden;">
+                <div style="background:var(--primary); color:white; padding:12px; font-weight:bold; letter-spacing: 1px;">AIKOTAN SOCIETY - ID CARD</div>
+                <div style="padding: 20px;">
+                    <div class="id-photo">
+                        <img id="cardImg" src="" alt="Photo">
                     </div>
+                    <h3 id="cardName" style="margin: 10px 0; font-size: 20px;"></h3>
+                    <p>Member ID: <span id="cardID" style="font-weight: bold;"></span></p>
+                    <p>Blood Group: <span id="cardBloodDisp" style="font-weight: bold;"></span></p>
+                    <p>Status: <span style="color: green; font-weight: bold;">Active Member</span></p>
+                    <hr>
+                    <p style="font-size: 11px; color: #777;"><span id="cardAddressDisp"></span></p>
                 </div>
             </div>
-        </div>
-        <button class="btn" id="downloadBtn" style="background: #159895;"><i class="fas fa-download"></i> কার্ড ডাউনলোড করুন</button>
-        <button class="btn" onclick="location.reload()" style="background: #666;">লগ আউট</button>
-
-
+            <button class="btn" id="downloadBtn"><i class="fas fa-download"></i> কার্ড ডাউনলোড করুন</button>
+            <button class="btn" onclick="location.reload()" style="background: #666;">লগ আউট</button>
         </div>
     </div>
 
@@ -135,9 +157,9 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc, deleteDoc, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        const firebaseConfig = {
+    const firebaseConfig = {
       apiKey: "AIzaSyDEXXHMhEXY3fih9jihO6X_b-a2677", 
       authDomain: "club-a2677.firebaseapp.com",
       projectId: "club-a2677",
@@ -148,12 +170,15 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    // Section Management
     window.showSection = function(id) {
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
+        const target = document.getElementById(id);
+        if(target) target.classList.add('active');
         if(id === 'home') loadPublicList();
     }
 
+    // Public List
     async function loadPublicList() {
         const snap = await getDocs(query(collection(db, "members"), where("status", "==", "Active")));
         const list = document.getElementById('publicMemberList');
@@ -164,83 +189,73 @@
         });
     }
 
-window.handleRegistration = async function() {
-    const name = document.getElementById('regName').value;
-    const phone = document.getElementById('transID').value;
-    const address = document.getElementById('regAddress').value;
-    const blood = document.getElementById('regBlood').value;
-    const file = document.getElementById('regPhoto').files[0];
-    const regBtn = document.getElementById('regBtn');
-
-    if(!name || !phone || !file) return alert("দয়া করে সব তথ্য পূরণ করুন।");
-
-    regBtn.disabled = true;
-    regBtn.innerText = "অপেক্ষা করুন...";
-
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = async (e) => {
-        try {
-            // মেম্বার ডাটা সরাসরি Firestore-এ সেভ হচ্ছে (Storage ছাড়া)
-            await addDoc(collection(db, "members"), {
-                name: name,
-                address: address,
-                phone: phone, 
-                blood_group: blood,
-                photo_url: e.target.result, 
-                status: "Pending", 
-                joined_at: new Date()
-            });
-
-            // হিস্ট্রি সেভ
-            await addDoc(collection(db, "history"), { 
-                member_phone: phone, 
-                date: new Date(), 
-                desc: "রেজিস্ট্রেশন আবেদন জমা দেওয়া হয়েছে", 
-                status: "Pending" 
-            });
-
-            alert("ধন্যবাদ " + name + "! আবেদন সফলভাবে জমা হয়েছে।");
-            location.reload();
-
-        } catch (error) {
-            console.error("Error: ", error);
-            alert("দুঃখিত, সমস্যা হয়েছে। ছবির সাইজ কমিয়ে আবার চেষ্টা করুন।");
-            regBtn.disabled = false;
-            regBtn.innerText = "আবেদন জমা দিন";
-        }
-    };
-}
-
-    window.memberLogin = async function() {
-    const phone = document.getElementById('loginPhone').value;
-    const snap = await getDocs(query(collection(db, "members"), where("phone", "==", phone)));
-    
-    if(!snap.empty) {
-        const d = snap.docs[0].data();
-        
-        // অ্যাডমিনের পারমিশন চেক
-        if(d.status !== "Active") {
-            alert("আপনার আবেদনটি এখন 'Pending' আছে। অ্যাডমিন অ্যাপ্রুভ করলে আপনি আপনার আইডি কার্ড দেখতে পাবেন।");
-            return; // এখানেই কোড থেমে যাবে, ড্যাশবোর্ড খুলবে না
+    // Registration Handler
+    window.handleRegistration = async function() {
+        if (!document.getElementById('termsCheck').checked) {
+            alert("দয়া করে নিয়মাবলীতে টিক দিয়ে সম্মতি জানান!");
+            return;
         }
 
-        // পারমিশন থাকলে তবেই নিচের আইডি কার্ড দেখাবে
-        document.getElementById('loginArea').style.display = 'none';
-        document.getElementById('memberContent').style.display = 'block';
-        document.getElementById('id-card-display').style.display = 'block';
-        document.getElementById('cardName').innerText = d.name;
-        document.getElementById('cardImg').src = d.photo_url;
-        document.getElementById('cardID').innerText = "M-" + phone.slice(-4);
-        document.getElementById('cardBloodDisp').innerText = d.blood_group;
-        document.getElementById('cardAddressDisp').innerText = d.address;
+        const name = document.getElementById('regName').value;
+        const phone = document.getElementById('transID').value;
+        const address = document.getElementById('regAddress').value;
+        const blood = document.getElementById('regBlood').value;
+        const file = document.getElementById('regPhoto').files[0];
+        const regBtn = document.getElementById('regBtn');
 
-        // হিস্ট্রি লোড করার কোড...
-    } else { 
-        alert("মেম্বার পাওয়া যায়নি!"); 
+        if(!name || !phone || !file) return alert("দয়া করে সব তথ্য পূরণ করুন।");
+
+        regBtn.disabled = true;
+        regBtn.innerText = "অপেক্ষা করুন...";
+
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = async (e) => {
+            try {
+                await addDoc(collection(db, "members"), {
+                    name: name,
+                    address: address,
+                    phone: phone, 
+                    blood_group: blood,
+                    photo_url: e.target.result, 
+                    status: "Pending", 
+                    joined_at: new Date()
+                });
+                alert("ধন্যবাদ " + name + "! আবেদন সফলভাবে জমা হয়েছে।");
+                location.reload();
+            } catch (error) {
+                alert("ভুল হয়েছে। ছবির সাইজ কমিয়ে চেষ্টা করুন।");
+                regBtn.disabled = false;
+                regBtn.innerText = "আবেদন জমা দিন";
+            }
+        };
     }
-}
 
+    // Login Handler
+    window.memberLogin = async function() {
+        const phone = document.getElementById('loginPhone').value;
+        const snap = await getDocs(query(collection(db, "members"), where("phone", "==", phone)));
+        
+        if(!snap.empty) {
+            const d = snap.docs[0].data();
+            if(d.status !== "Active") {
+                alert("আপনার আবেদনটি এখনও 'Pending' আছে।");
+                return;
+            }
+            document.getElementById('loginArea').style.display = 'none';
+            document.getElementById('memberContent').style.display = 'block';
+            document.getElementById('id-card-display').style.display = 'block';
+            document.getElementById('cardName').innerText = d.name;
+            document.getElementById('cardImg').src = d.photo_url;
+            document.getElementById('cardID').innerText = "M-" + phone.slice(-4);
+            document.getElementById('cardBloodDisp').innerText = d.blood_group;
+            document.getElementById('cardAddressDisp').innerText = d.address;
+        } else { 
+            alert("মেম্বার পাওয়া যায়নি!"); 
+        }
+    }
+
+    // Admin Functions
     window.loadAdminPanel = async function() {
         if (prompt("Admin Password?") !== "aikotan2026") return;
         showSection('adminSection');
@@ -250,35 +265,26 @@ window.handleRegistration = async function() {
         snap.forEach(d => {
             const u = d.data();
             list.innerHTML += `<div style="border-bottom:1px solid #ccc; padding:10px;">
-                <p>${u.name} (${u.phone})</p>
-                <button class="btn" style="width:auto" onclick="approveMember('${d.id}', '${u.phone}')">Approve</button>
-                <button class="btn" style="width:auto; background:orange" onclick="addPaymentHistory('${u.phone}')">ফি আপডেট</button>
+                <p>${u.name} (${u.phone}) - [${u.status}]</p>
+                <button class="btn" style="width:auto" onclick="approveMember('${d.id}')">Approve</button>
                 <button class="btn" style="width:auto; background:red" onclick="removeMember('${d.id}')">Delete</button>
             </div>`;
         });
     }
 
-    window.approveMember = async (id, phone) => {
+    window.approveMember = async (id) => {
         await updateDoc(doc(db, "members", id), {status: "Active"});
-        await addDoc(collection(db, "history"), { member_phone: phone, date: new Date(), desc: "মেম্বারশিপ অ্যাপ্রুভড", status: "Success" });
         alert("Approved!"); loadAdminPanel();
     }
 
-    window.addPaymentHistory = async (phone) => {
-        const month = prompt("কোন মাসের ফি? (উদা: জানুয়ারি ২০২৬)");
-        if(!month) return;
-        await addDoc(collection(db, "history"), { member_phone: phone, date: new Date(), desc: `মাসিক ফি (${month})`, status: "Paid" });
-        alert("Payment Updated!");
-    }
-
-        window.removeMember = async (id) => { 
+    window.removeMember = async (id) => { 
         if(confirm("Delete?")) { 
             await deleteDoc(doc(db, "members", id)); 
             loadAdminPanel(); 
         } 
     };
 
-    // ডাউনলোড বাটন কাজ করানোর কোড
+    // Card Download
     document.getElementById('downloadBtn').addEventListener('click', function() {
         const card = document.getElementById('id-card-display');
         html2canvas(card, { useCORS: true }).then(canvas => {
